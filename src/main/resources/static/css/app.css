@@ -1,0 +1,69 @@
+:root {
+    --primary-color: #4A90E2;
+    --success-color: #5CB85C;
+    --danger-color: #D9534F;
+    --warning-color: #F0AD4E;
+    --info-color: #5BC0DE;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: 700;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    font-weight: 600;
+}
+
+.amount-income {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.amount-expense {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Authentication Pages */
+.auth-container {
+    max-width: 400px;
+    margin: 5rem auto;
+}
+
+/* Dashboard */
+.summary-card {
+    transition: transform 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}

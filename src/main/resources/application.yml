@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: fin-track
+  datasource:
+    url: jdbc:mysql://localhost:3307/fin-track?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: fintrack_user
+    password: fintrack_pass_2026
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  thymeleaf:
+    cache: false
+    mode: HTML
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+logging:
+  level:
+    com.finance.tracker: DEBUG
+    org.springframework.web: INFO

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+
+<head>
+    <title>Reports - FinTrack</title>
+</head>
+
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Monthly Reports</h2>
+            <div class="d-flex align-items-center">
+                <select id="reportMonth" class="form-select me-2" style="width: auto;"></select>
+                <select id="reportYear" class="form-select" style="width: auto;"></select>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Income</h6>
+                        <h3 id="reportIncome">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Expense</h6>
+                        <h3 id="reportExpense">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Net Balance</h6>
+                        <h3 id="reportBalance">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Top Expenses Table -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Top Spending Categories</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="topCategoriesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-end">% of Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Actions -->
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Export Data</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">Download your financial data for external analysis.</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-success" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel me-2"></i>Export to Excel
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv me-2"></i>Export to CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script th:src="@{/js/reports.js}"></script>
+    </th:block>
+</body>
+
+</html>

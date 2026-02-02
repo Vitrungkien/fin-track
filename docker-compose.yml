@@ -1,0 +1,26 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: fintrack-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: fintrack_root_2026
+      MYSQL_DATABASE: fin-track
+      MYSQL_USER: fintrack_user
+      MYSQL_PASSWORD: fintrack_pass_2026
+    ports:
+      - "3307:3306"
+    volumes:
+      - fintrack_mysql_data:/var/lib/mysql
+    networks:
+      - fintrack-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+volumes:
+  fintrack_mysql_data:
+
+networks:
+  fintrack-network:
+    driver: bridge

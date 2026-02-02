@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::content}, ~{::scripts})}">
+
+<head>
+    <title>Categories - FinTrack</title>
+</head>
+
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Categories</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal"
+                onclick="clearForm()">
+                <i class="fas fa-plus me-2"></i>Add Category
+            </button>
+        </div>
+
+        <ul class="nav nav-tabs mb-4" id="categoryTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="expense-tab" data-bs-toggle="tab" data-bs-target="#expense"
+                    type="button" role="tab" onclick="loadCategories('EXPENSE')">Expenses</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="income-tab" data-bs-toggle="tab" data-bs-target="#income" type="button"
+                    role="tab" onclick="loadCategories('INCOME')">Income</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="categoryTabContent">
+            <div class="tab-pane fade show active" id="expense" role="tabpanel">
+                <div id="expenseCategories" class="row">
+                    <!-- Categories loaded here -->
+                </div>
+            </div>
+            <div class="tab-pane fade" id="income" role="tabpanel">
+                <div id="incomeCategories" class="row">
+                    <!-- Categories loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div class="modal fade" id="categoryModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Add Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="categoryForm">
+                            <input type="hidden" id="categoryId">
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="categoryName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="categoryColor" class="form-label">Color</label>
+                                <input type="color" class="form-control form-control-color" id="categoryColor"
+                                    value="#4A90E2" title="Choose your color">
+                            </div>
+                            <div class="mb-3">
+                                <label for="categoryType" class="form-label">Type</label>
+                                <select class="form-select" id="categoryType" required>
+                                    <option value="EXPENSE">Expense</option>
+                                    <option value="INCOME">Income</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveCategory()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script th:src="@{/js/categories.js}"></script>
+    </th:block>
+</body>
+
+</html>
