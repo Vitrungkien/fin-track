@@ -13,7 +13,7 @@ public class WebController {
         return "dashboard";
     }
 
-    @GetMapping("/login")
+    @GetMapping("login")
     public String login() {
         return "login";
     }
@@ -22,4 +22,25 @@ public class WebController {
     public String register() {
         return "register";
     }
+
+    @GetMapping("/transactions")
+    public String transactions() {
+        return "transactions";
+    }
+
+    @GetMapping("/categories")
+    public String categories() {
+        return "categories";
+    }
+
+    @GetMapping("/budgets")
+    public String budgets() {
+        return "budgets";
+    }
+
+    @GetMapping("/reports")
+    public String reports() {
+        return "reports";
+    }
+
 }

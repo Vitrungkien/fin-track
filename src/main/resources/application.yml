@@ -1,3 +1,10 @@
+application:
+  security:
+    jwt:
+      # Key bí mật dùng để ký token (nên có độ dài tối thiểu 256-bit cho HS256)
+      secret-key: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+      # Thời gian hết hạn (ví dụ: 86400000 ms = 24 giờ)
+      expiration: 86400000
 spring:
   application:
     name: fin-track

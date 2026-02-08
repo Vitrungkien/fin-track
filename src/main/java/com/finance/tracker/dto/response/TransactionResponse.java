@@ -16,6 +16,7 @@ public class TransactionResponse {
     private Long categoryId;
     private String categoryName;
     private String categoryColor;
+    private String categoryIcon;
     private LocalDate transactionDate;
     private String note;
 }

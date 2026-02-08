@@ -21,6 +21,11 @@ body {
     font-weight: 700;
 }
 
+.navbar .fa-user-circle {
+    font-size: 1.25rem;
+    vertical-align: sub;
+}
+
 .card {
     border: none;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -30,7 +35,7 @@ body {
 
 .card-header {
     background-color: #fff;
-    border-bottom: 1px solid rgba(0,0,0,.05);
+    border-bottom: 1px solid rgba(0, 0, 0, .05);
     font-weight: 600;
 }
 

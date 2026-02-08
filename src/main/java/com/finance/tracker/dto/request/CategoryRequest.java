@@ -16,6 +16,8 @@ public class CategoryRequest {
     @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", message = "Invalid color format")
     private String color;
 
+    private String icon;
+
     @NotNull(message = "Type is required")
     private TransactionType type;
 }

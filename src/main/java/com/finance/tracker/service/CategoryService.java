@@ -53,6 +53,7 @@ public class CategoryService {
                 .user(user)
                 .name(request.getName())
                 .color(request.getColor())
+                .icon(request.getIcon())
                 .type(request.getType())
                 .build();
 
@@ -74,6 +75,7 @@ public class CategoryService {
 
         category.setName(request.getName());
         category.setColor(request.getColor());
+        category.setIcon(request.getIcon());
         category.setType(request.getType());
 
         return mapToResponse(categoryRepository.save(category));
@@ -98,6 +100,7 @@ public class CategoryService {
                 .id(category.getId())
                 .name(category.getName())
                 .color(category.getColor())
+                .icon(category.getIcon())
                 .type(category.getType())
                 .build();
     }

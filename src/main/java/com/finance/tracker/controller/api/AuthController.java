@@ -1,5 +1,7 @@
 package com.finance.tracker.controller.api;
 
+import com.finance.tracker.dto.request.ChangePasswordRequest;
+import com.finance.tracker.dto.request.LoginRequest;
 import com.finance.tracker.dto.request.RegisterRequest;
 import com.finance.tracker.dto.response.AuthResponse;
 import com.finance.tracker.entity.User;
@@ -26,6 +28,23 @@ public class AuthController {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .role(user.getRole().name())
                 .build());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request) {
+
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication()
+                .getName();
+        authService.changePassword(email, request.getOldPassword(), request.getNewPassword());
+
+        return ResponseEntity.ok("Password changed successfully");
     }
 }

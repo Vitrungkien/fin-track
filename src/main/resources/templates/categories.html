@@ -60,6 +60,33 @@
                                     value="#4A90E2" title="Choose your color">
                             </div>
                             <div class="mb-3">
+                                <label for="categoryIcon" class="form-label">Icon</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i id="iconPreview" class="fas fa-tag"></i></span>
+                                    <select class="form-select" id="categoryIcon" onchange="updateIconPreview()">
+                                        <option value="fas fa-tag">Tag</option>
+                                        <option value="fas fa-utensils">Food</option>
+                                        <option value="fas fa-shopping-cart">Shopping</option>
+                                        <option value="fas fa-home">Home</option>
+                                        <option value="fas fa-bus">Transport</option>
+                                        <option value="fas fa-car">Car</option>
+                                        <option value="fas fa-plane">Travel</option>
+                                        <option value="fas fa-heartbeat">Health</option>
+                                        <option value="fas fa-graduation-cap">Education</option>
+                                        <option value="fas fa-gamepad">Entertainment</option>
+                                        <option value="fas fa-tshirt">Clothing</option>
+                                        <option value="fas fa-gift">Gift</option>
+                                        <option value="fas fa-file-invoice-dollar">Bill</option>
+                                        <option value="fas fa-money-bill-wave">Salary</option>
+                                        <option value="fas fa-chart-line">Investment</option>
+                                        <option value="fas fa-university">Bank</option>
+                                        <option value="fas fa-hand-holding-usd">Bonus</option>
+                                        <option value="fas fa-piggy-bank">Savings</option>
+                                        <option value="fas fa-ellipsis-h">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
                                 <label for="categoryType" class="form-label">Type</label>
                                 <select class="form-select" id="categoryType" required>
                                     <option value="EXPENSE">Expense</option>

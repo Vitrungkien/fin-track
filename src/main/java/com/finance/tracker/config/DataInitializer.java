@@ -20,8 +20,8 @@ public class DataInitializer {
         return args -> {
             if (userRepository.count() == 0) {
                 User user = User.builder()
-                        .email("admin@example.com")
-                        .password(passwordEncoder.encode("password"))
+                        .email("kienvt@vt.com")
+                        .password(passwordEncoder.encode("kienvt@123"))
                         .fullName("Admin User")
                         .build();
 

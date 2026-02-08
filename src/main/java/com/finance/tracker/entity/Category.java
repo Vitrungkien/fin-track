@@ -33,6 +33,9 @@ public class Category {
     @Column(nullable = false, length = 7)
     private String color;
 
+    @Column(length = 50)
+    private String icon;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;

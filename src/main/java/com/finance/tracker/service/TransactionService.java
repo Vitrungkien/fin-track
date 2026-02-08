@@ -117,6 +117,7 @@ public class TransactionService {
                 .categoryId(transaction.getCategory().getId())
                 .categoryName(transaction.getCategory().getName())
                 .categoryColor(transaction.getCategory().getColor())
+                .categoryIcon(transaction.getCategory().getIcon())
                 .transactionDate(transaction.getTransactionDate())
                 .note(transaction.getNote())
                 .build();

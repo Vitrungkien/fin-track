@@ -37,4 +37,11 @@ public class DashboardController {
             @RequestParam(required = false) Integer year) {
         return ResponseEntity.ok(dashboardService.getDailyChartData(month, year));
     }
+
+    @GetMapping("/category-summary")
+    public ResponseEntity<java.util.List<com.finance.tracker.dto.response.CategoryExpenseSummary>> getCategorySummary(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) {
+        return ResponseEntity.ok(dashboardService.getCategoryExpenseSummary(month, year));
+    }
 }
