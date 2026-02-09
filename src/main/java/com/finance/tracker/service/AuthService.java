@@ -20,63 +20,69 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+        private final UserRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
+        private final AuthenticationManager authenticationManager;
+        private final JwtUtils jwtUtils;
 
-    @Transactional
-    public User register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already in use");
+        @Transactional
+        public User register(RegisterRequest request) {
+                if (userRepository.existsByUsername(request.getUsername())) {
+                        throw new IllegalArgumentException("Username already in use");
+                }
+
+                if (userRepository.existsByEmail(request.getEmail())) {
+                        throw new IllegalArgumentException("Email already in use");
+                }
+
+                User user = User.builder()
+                                .username(request.getUsername())
+                                .email(request.getEmail())
+                                .password(passwordEncoder.encode(request.getPassword()))
+                                .fullName(request.getFullName())
+                                .role(request.getRole() != null ? request.getRole()
+                                                : com.finance.tracker.entity.UserRole.USER)
+                                .build();
+
+                return userRepository.save(user);
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .fullName(request.getFullName())
-                .role(request.getRole() != null ? request.getRole() : com.finance.tracker.entity.UserRole.USER)
-                .build();
+        public AuthResponse login(LoginRequest request) {
+                authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        return userRepository.save(user);
-    }
+                User user = userRepository.findByUsername(request.getUsername())
+                                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(
+                                user.getUsername(),
+                                user.getPassword(),
+                                Collections
+                                                .singletonList(new SimpleGrantedAuthority(
+                                                                "ROLE_" + user.getRole().name())));
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                String jwtToken = jwtUtils.generateToken(userDetails);
 
-        org.springframework.security.core.userdetails.User userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections
-                        .singletonList(new SimpleGrantedAuthority(
-                                "ROLE_" + user.getRole().name())));
-
-        String jwtToken = jwtUtils.generateToken(userDetails);
-
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .userId(user.getId())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole().name())
-                .build();
-    }
-
-    @Transactional
-    public void changePassword(String email, String oldPassword, String newPassword) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Old password is incorrect");
+                return AuthResponse.builder()
+                                .token(jwtToken)
+                                .userId(user.getId())
+                                .email(user.getEmail())
+                                .fullName(user.getFullName())
+                                .role(user.getRole().name())
+                                .build();
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
+        @Transactional
+        public void changePassword(String username, String oldPassword, String newPassword) {
+                User user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+                if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                        throw new IllegalArgumentException("Old password is incorrect");
+                }
+
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+        }
 }

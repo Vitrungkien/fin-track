@@ -18,15 +18,17 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initData() {
         return args -> {
-            if (userRepository.count() == 0) {
+            if (userRepository.count() == 1) {
                 User user = User.builder()
+                        .username("admin")
                         .email("kienvt@vt.com")
-                        .password(passwordEncoder.encode("kienvt@123"))
+                        .password(passwordEncoder.encode("123"))
                         .fullName("Admin User")
+                        .role(com.finance.tracker.entity.UserRole.USER)
                         .build();
 
                 userRepository.save(user);
-                System.out.println("Default user created: admin@example.com / password");
+                System.out.println("Default user created: username=admin / password=kienvt@123");
             }
         };
     }

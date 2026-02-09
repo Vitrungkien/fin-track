@@ -19,7 +19,7 @@
                 <h5 class="text-center mb-4">Login to your account</h5>
 
                 <div th:if="${param.error}" class="alert alert-danger">
-                    Invalid email or password.
+                    Invalid username or password.
                 </div>
                 <div th:if="${param.logout}" class="alert alert-success">
                     You have been logged out.
@@ -27,10 +27,10 @@
 
                 <form th:action="@{/login}" method="post">
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email address</label>
+                        <label for="username" class="form-label">Username</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            <input type="email" class="form-control" id="email" name="email" required autofocus>
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" required autofocus>
                         </div>
                     </div>
                     <div class="mb-3">

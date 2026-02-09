@@ -29,6 +29,14 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
+                            <input type="text" class="form-control" id="username" required minlength="3" maxlength="20">
+                        </div>
+                        <div class="form-text">3-20 characters, letters and numbers only.</div>
+                    </div>
+                    <div class="mb-3">
                         <label for="email" class="form-label">Email address</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
@@ -78,6 +86,7 @@
 
                 const data = {
                     fullName: $('#fullName').val(),
+                    username: $('#username').val(),
                     email: $('#email').val(),
                     password: password
                 };
