@@ -1,7 +1,3 @@
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-}
-
 $(document).ready(function () {
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
@@ -32,9 +28,9 @@ $(document).ready(function () {
 
         // Load Summary
         $.get(`/api/dashboard/summary?month=${month}&year=${year}`, function (data) {
-            $('#totalIncome').text(formatCurrency(data.totalIncome));
-            $('#totalExpense').text(formatCurrency(data.totalExpense));
-            $('#balance').text(formatCurrency(data.balance));
+            $('#totalIncome').text(App.formatCurrency(data.totalIncome));
+            $('#totalExpense').text(App.formatCurrency(data.totalExpense));
+            $('#balance').text(App.formatCurrency(data.balance));
         });
 
         // Load Daily Chart
@@ -122,7 +118,7 @@ $(document).ready(function () {
                             </div>
                             <div class="d-flex align-items-center">
                                 <span class="badge bg-light text-dark me-3">${item.percentage.toFixed(1)}%</span>
-                                <h6 class="mb-0 font-weight-bold me-3 text-danger">${formatCurrency(item.totalAmount)}</h6>
+                                <h6 class="mb-0 font-weight-bold me-3 text-danger">${App.formatCurrency(item.totalAmount)}</h6>
                                 <i class="fas fa-chevron-down toggle-icon transition-transform"></i>
                             </div>
                         </div>
@@ -181,7 +177,7 @@ $(document).ready(function () {
                                         <tr class="border-bottom">
                                             <td class="ps-3">${new Date(t.transactionDate).toLocaleDateString()}</td>
                                             <td>${t.note || '-'}</td>
-                                            <td class="text-end pe-3 font-weight-bold text-danger">${formatCurrency(t.amount)}</td>
+                                            <td class="text-end pe-3 font-weight-bold text-danger">${App.formatCurrency(t.amount)}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>

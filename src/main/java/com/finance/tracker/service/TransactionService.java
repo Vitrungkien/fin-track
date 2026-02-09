@@ -102,6 +102,11 @@ public class TransactionService {
         transactionRepository.delete(transaction);
     }
 
+    @Transactional(readOnly = true)
+    public TransactionResponse getTransaction(Long id) {
+        return mapToResponse(getTransactionById(id));
+    }
+
     private Transaction getTransactionById(Long id) {
         User user = getCurrentUser();
         return transactionRepository.findById(id)

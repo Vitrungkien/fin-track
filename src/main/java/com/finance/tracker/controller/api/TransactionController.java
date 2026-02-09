@@ -32,6 +32,11 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getTransactions(categoryId, type, month, year, pageable));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionResponse> getTransaction(@PathVariable Long id) {
+        return ResponseEntity.ok(transactionService.getTransaction(id));
+    }
+
     @PostMapping
     public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(request));

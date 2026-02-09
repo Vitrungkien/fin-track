@@ -1,7 +1,7 @@
 // Common Utilities
 const App = {
     formatCurrency: function (amount) {
-        return new Intl.NumberFormat('id-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     },
 
     formatDate: function (dateStr) {

@@ -1,7 +1,11 @@
 
+let currentPage = 0;
+let pageSize = 10;
+
 $(document).ready(function () {
+    pageSize = $('#pageSize').val();
     setupFilters();
-    loadTransactions();
+    loadTransactions(0);
 });
 
 function setupFilters() {
@@ -25,12 +29,15 @@ function setupFilters() {
     });
 }
 
-function loadTransactions() {
+function loadTransactions(page = 0) {
+    currentPage = page;
+    pageSize = $('#pageSize').val();
+
     const month = $('#filterMonth').val();
     const year = $('#filterYear').val();
     const type = $('#filterType').val();
 
-    let query = `?size=50`; // Default size, implemented simple pagination maybe
+    let query = `?page=${page}&size=${pageSize}`;
     if (month) query += `&month=${month}`;
     if (year) query += `&year=${year}`;
     if (type) query += `&type=${type}`;
@@ -41,18 +48,20 @@ function loadTransactions() {
 
         if (response.content.length === 0) {
             tbody.html('<tr><td colspan="5" class="text-center text-muted">No transactions found</td></tr>');
+            updatePagination(response);
             return;
         }
 
         response.content.forEach(t => {
             const amountClass = t.type === 'INCOME' ? 'text-success' : 'text-danger';
             const sign = t.type === 'INCOME' ? '+' : '-';
+            const categoryColor = t.categoryColor || '#6c757d';
 
             tbody.append(`
                 <tr>
                     <td>${App.formatDate(t.transactionDate)}</td>
                     <td>
-                        <span class="badge" style="background-color: ${t.categoryColor}">${t.categoryName}</span>
+                        <span class="badge" style="background-color: ${categoryColor}">${t.categoryName}</span>
                     </td>
                     <td>${t.note || '-'}</td>
                     <td class="text-end ${amountClass}">
@@ -65,7 +74,86 @@ function loadTransactions() {
                 </tr>
             `);
         });
+
+        updatePagination(response);
     });
+}
+
+function changePageSize() {
+    loadTransactions(0);
+}
+
+function updatePagination(pageData) {
+    const totalPages = pageData.totalPages;
+    const number = pageData.number;
+    const size = pageData.size;
+    const totalElements = pageData.totalElements;
+
+    // Update info text
+    const start = totalElements === 0 ? 0 : number * size + 1;
+    const end = Math.min((number + 1) * size, totalElements);
+    $('#pageInfo').text(`Showing ${start}-${end} of ${totalElements}`);
+
+    const pagination = $('#paginationControls');
+    pagination.empty();
+
+    if (totalPages <= 1) return;
+
+    // Previous
+    const prevDisabled = number === 0 ? 'disabled' : '';
+    pagination.append(`
+        <li class="page-item ${prevDisabled}">
+            <a class="page-link" href="#" onclick="loadTransactions(${number - 1}); return false;">Previous</a>
+        </li>
+    `);
+
+    // Page Numbers - Simple sliding window
+    const maxPagesToShow = 5;
+    let startPage = Math.max(0, number - 2);
+    let endPage = Math.min(totalPages - 1, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage < maxPagesToShow - 1) {
+        startPage = Math.max(0, endPage - maxPagesToShow + 1);
+    }
+
+    if (startPage > 0) {
+        pagination.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="loadTransactions(0); return false;">1</a>
+            </li>
+        `);
+        if (startPage > 1) {
+            pagination.append('<li class="page-item disabled"><span class="page-link">...</span></li>');
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const active = i === number ? 'active' : '';
+        pagination.append(`
+            <li class="page-item ${active}">
+                <a class="page-link" href="#" onclick="loadTransactions(${i}); return false;">${i + 1}</a>
+            </li>
+        `);
+    }
+
+    if (endPage < totalPages - 1) {
+        if (endPage < totalPages - 2) {
+            pagination.append('<li class="page-item disabled"><span class="page-link">...</span></li>');
+        }
+        pagination.append(`
+            <li class="page-item">
+                <a class="page-link" href="#" onclick="loadTransactions(${totalPages - 1}); return false;">${totalPages}</a>
+            </li>
+        `);
+    }
+
+    // Next
+    const nextDisabled = number === totalPages - 1 ? 'disabled' : '';
+    pagination.append(`
+        <li class="page-item ${nextDisabled}">
+            <a class="page-link" href="#" onclick="loadTransactions(${number + 1}); return false;">Next</a>
+        </li>
+    `);
 }
 
 function loadCategoriesForSelect(selectedCategoryId) {
@@ -75,7 +163,8 @@ function loadCategoriesForSelect(selectedCategoryId) {
     $.get(`/api/categories?type=${type}`, function (data) {
         categorySelect.empty();
         data.forEach(cat => {
-            categorySelect.append(`<option value="${cat.id}" ${cat.id === selectedCategoryId ? 'selected' : ''}>${cat.name}</option>`);
+            const selected = (selectedCategoryId && cat.id == selectedCategoryId) ? 'selected' : '';
+            categorySelect.append(`<option value="${cat.id}" ${selected}>${cat.name}</option>`);
         });
     });
 }
@@ -91,44 +180,24 @@ function openAddModal() {
 }
 
 function editTransaction(id) {
-    $.get(`/api/transactions?page=0&size=1000`, function (response) {
-        // Find transaction from list (not efficient but okay for now since we don't have getById API exposed easily in UI flow without fetching)
-        // Wait, I should have getById. Let's assume I don't need it if I pass all data. But better fetch it.
-        // Actually, listing returns limited fields. But response has enough.
-        // The listing API returns Page<TransactionResponse>.
-        // Let's iterate response.content to find it. This is lazy.
-        // Ideally: GET /api/transactions/{id} -- wait, I didn't implement getById in Controller? 
-        // Checking Controller... I only implemented getTransactions(list).
-        // Ah, I missed GET /{id} in my controller implementation step!
-        // I will just use the data from the row if I had it, but I don't fully have it in DOM.
-        // I'll proceed with filtering the current list in memory, assuming it's there.
-        // Or I should add GET /{id} quickly.
+    $.get(`/api/transactions/${id}`, function (transaction) {
+        $('#transactionId').val(transaction.id);
+        $('#type').val(transaction.type);
+        $('#amount').val(transaction.amount);
+        $('#transactionDate').val(transaction.transactionDate);
+        $('#note').val(transaction.note);
 
-        // Let's implement finding from the current loaded list, filtering by ID, assuming it's loaded.
-        // Since loadTransactions was called, response might not be available here.
-        // I'll cheat and assume I can filter the previous AJAX response if I stored it, but I didn't.
-        // I'll implement a helper to fetch it by list filtering for now, or just implement the method.
+        loadCategoriesForSelect(transaction.categoryId);
 
-        // Actually, filtering the list is fine for MVP.
-        const transaction = response.content.find(t => t.id === id);
-        if (transaction) {
-            $('#transactionId').val(transaction.id);
-            $('#type').val(transaction.type);
-            $('#amount').val(transaction.amount);
-            $('#transactionDate').val(transaction.transactionDate);
-            $('#note').val(transaction.note);
-
-            // Wait for categories to load then select
-            const categorySelect = $('#categoryId');
-            $.get(`/api/categories?type=${transaction.type}`, function (data) {
-                categorySelect.empty();
-                data.forEach(cat => {
-                    categorySelect.append(`<option value="${cat.id}" ${cat.id === transaction.categoryId ? 'selected' : ''}>${cat.name}</option>`);
-                });
-            });
-
-            $('#modalTitle').text('Edit Transaction');
-            $('#transactionModal').modal('show');
+        $('#modalTitle').text('Edit Transaction');
+        $('#transactionModal').modal('show');
+    }).fail(function () {
+        // App might not be defined or available if common.js isn't loaded or fails, 
+        // but assuming App.showToast is available as per original code.
+        if (typeof App !== 'undefined' && App.showToast) {
+            App.showToast('Error loading transaction details', 'danger');
+        } else {
+            alert('Error loading transaction details');
         }
     });
 }
@@ -153,8 +222,11 @@ function saveTransaction() {
         data: JSON.stringify(data),
         success: function () {
             $('#transactionModal').modal('hide');
-            App.showToast('Transaction saved');
-            loadTransactions();
+            // Assuming App is defined in global scope from common.js
+            if (typeof App !== 'undefined' && App.showToast) App.showToast('Transaction saved');
+
+            // Reload current page to show updates
+            loadTransactions(currentPage);
         },
         error: function (xhr) {
             alert('Error saving transaction: ' + (xhr.responseJSON ? xhr.responseJSON.message : xhr.statusText));
@@ -168,8 +240,8 @@ function deleteTransaction(id) {
             url: `/api/transactions/${id}`,
             type: 'DELETE',
             success: function () {
-                App.showToast('Transaction deleted');
-                loadTransactions();
+                if (typeof App !== 'undefined' && App.showToast) App.showToast('Transaction deleted');
+                loadTransactions(currentPage);
             }
         });
     }
