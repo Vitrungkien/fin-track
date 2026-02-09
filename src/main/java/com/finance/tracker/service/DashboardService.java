@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
@@ -36,17 +38,18 @@ public class DashboardService {
         @Transactional(readOnly = true)
         public DashboardSummaryResponse getSummary(Integer month, Integer year) {
                 User user = getCurrentUser();
-                LocalDate startDate;
-                LocalDate endDate;
+                LocalDateTime startDate;
+                LocalDateTime endDate;
 
                 if (month != null && year != null) {
-                        startDate = LocalDate.of(year, month, 1);
-                        endDate = startDate.plusMonths(1).minusDays(1);
+                        LocalDate start = LocalDate.of(year, month, 1);
+                        startDate = start.atStartOfDay();
+                        endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
                 } else {
                         // Default to current month
                         LocalDate now = LocalDate.now();
-                        startDate = now.withDayOfMonth(1);
-                        endDate = now.withDayOfMonth(now.lengthOfMonth());
+                        startDate = now.withDayOfMonth(1).atStartOfDay();
+                        endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
                 }
 
                 List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
@@ -74,17 +77,17 @@ public class DashboardService {
         @Transactional(readOnly = true)
         public ChartDataResponse getCategoryChartData(Integer month, Integer year) {
                 User user = getCurrentUser();
-                // Similar logic for dates, logic duplicate could be refactored
-                LocalDate startDate;
-                LocalDate endDate;
+                LocalDateTime startDate;
+                LocalDateTime endDate;
 
                 if (month != null && year != null) {
-                        startDate = LocalDate.of(year, month, 1);
-                        endDate = startDate.plusMonths(1).minusDays(1);
+                        LocalDate start = LocalDate.of(year, month, 1);
+                        startDate = start.atStartOfDay();
+                        endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
                 } else {
                         LocalDate now = LocalDate.now();
-                        startDate = now.withDayOfMonth(1);
-                        endDate = now.withDayOfMonth(now.lengthOfMonth());
+                        startDate = now.withDayOfMonth(1).atStartOfDay();
+                        endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
                 }
 
                 List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
@@ -119,16 +122,17 @@ public class DashboardService {
         @Transactional(readOnly = true)
         public ChartDataResponse getDailyChartData(Integer month, Integer year) {
                 User user = getCurrentUser();
-                LocalDate startDate;
-                LocalDate endDate;
+                LocalDateTime startDate;
+                LocalDateTime endDate;
 
                 if (month != null && year != null) {
-                        startDate = LocalDate.of(year, month, 1);
-                        endDate = startDate.plusMonths(1).minusDays(1);
+                        LocalDate start = LocalDate.of(year, month, 1);
+                        startDate = start.atStartOfDay();
+                        endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
                 } else {
                         LocalDate now = LocalDate.now();
-                        startDate = now.withDayOfMonth(1);
-                        endDate = now.withDayOfMonth(now.lengthOfMonth());
+                        startDate = now.withDayOfMonth(1).atStartOfDay();
+                        endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
                 }
 
                 List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
@@ -142,11 +146,14 @@ public class DashboardService {
                                                                 BigDecimal::add)));
 
                 // Create a list for all days
-                List<String> labels = startDate.datesUntil(endDate.plusDays(1))
+                LocalDate loopStart = startDate.toLocalDate();
+                LocalDate loopEnd = endDate.toLocalDate();
+
+                List<String> labels = loopStart.datesUntil(loopEnd.plusDays(1))
                                 .map(d -> String.valueOf(d.getDayOfMonth()))
                                 .collect(Collectors.toList());
 
-                List<BigDecimal> data = startDate.datesUntil(endDate.plusDays(1))
+                List<BigDecimal> data = loopStart.datesUntil(loopEnd.plusDays(1))
                                 .map(d -> dailyTotals.getOrDefault(d.getDayOfMonth(), BigDecimal.ZERO))
                                 .collect(Collectors.toList());
 
@@ -161,16 +168,17 @@ public class DashboardService {
         public List<com.finance.tracker.dto.response.CategoryExpenseSummary> getCategoryExpenseSummary(Integer month,
                         Integer year) {
                 User user = getCurrentUser();
-                LocalDate startDate;
-                LocalDate endDate;
+                LocalDateTime startDate;
+                LocalDateTime endDate;
 
                 if (month != null && year != null) {
-                        startDate = LocalDate.of(year, month, 1);
-                        endDate = startDate.plusMonths(1).minusDays(1);
+                        LocalDate start = LocalDate.of(year, month, 1);
+                        startDate = start.atStartOfDay();
+                        endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
                 } else {
                         LocalDate now = LocalDate.now();
-                        startDate = now.withDayOfMonth(1);
-                        endDate = now.withDayOfMonth(now.lengthOfMonth());
+                        startDate = now.withDayOfMonth(1).atStartOfDay();
+                        endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
                 }
 
                 List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(

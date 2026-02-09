@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,7 +39,7 @@ public class Transaction {
     private TransactionType type;
 
     @Column(name = "transaction_date", nullable = false)
-    private LocalDate transactionDate;
+    private LocalDateTime transactionDate;
 
     @Column(length = 500)
     private String note;

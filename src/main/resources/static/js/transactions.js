@@ -59,7 +59,7 @@ function loadTransactions(page = 0) {
 
             tbody.append(`
                 <tr>
-                    <td>${App.formatDate(t.transactionDate)}</td>
+                    <td>${App.formatDateTime(t.transactionDate)}</td>
                     <td>
                         <span class="badge" style="background-color: ${categoryColor}">${t.categoryName}</span>
                     </td>
@@ -172,7 +172,12 @@ function loadCategoriesForSelect(selectedCategoryId) {
 function openAddModal() {
     $('#transactionId').val('');
     $('#transactionForm')[0].reset();
-    $('#transactionDate').val(new Date().toISOString().split('T')[0]);
+
+    // Set current local datetime
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    $('#transactionDate').val(now.toISOString().slice(0, 16));
+
     $('#type').val('EXPENSE');
     loadCategoriesForSelect();
     $('#modalTitle').text('Add Transaction');
@@ -184,7 +189,12 @@ function editTransaction(id) {
         $('#transactionId').val(transaction.id);
         $('#type').val(transaction.type);
         $('#amount').val(transaction.amount);
-        $('#transactionDate').val(transaction.transactionDate);
+
+        // Ensure format matches datetime-local input
+        let dateVal = transaction.transactionDate;
+        if (dateVal && dateVal.length > 16) dateVal = dateVal.substring(0, 16);
+        $('#transactionDate').val(dateVal);
+
         $('#note').val(transaction.note);
 
         loadCategoriesForSelect(transaction.categoryId);

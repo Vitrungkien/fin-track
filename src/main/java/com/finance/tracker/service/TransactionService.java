@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +38,13 @@ public class TransactionService {
     public Page<TransactionResponse> getTransactions(Long categoryId, TransactionType type,
             Integer month, Integer year, Pageable pageable) {
         User user = getCurrentUser();
-        LocalDate startDate = null;
-        LocalDate endDate = null;
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = null;
 
         if (month != null && year != null) {
-            startDate = LocalDate.of(year, month, 1);
-            endDate = startDate.plusMonths(1).minusDays(1);
+            LocalDate start = LocalDate.of(year, month, 1);
+            startDate = start.atStartOfDay();
+            endDate = start.plusMonths(1).minusDays(1).atTime(23, 59, 59);
         }
 
         Page<Transaction> transactions = transactionRepository.findWithFilters(

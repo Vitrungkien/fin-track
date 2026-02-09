@@ -7,7 +7,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class TransactionRequest {
@@ -23,7 +23,7 @@ public class TransactionRequest {
     private Long categoryId;
 
     @NotNull(message = "Date is required")
-    private LocalDate transactionDate;
+    private LocalDateTime transactionDate;
 
     private String note;
 }

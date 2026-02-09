@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,34 +53,10 @@ public class BudgetService {
         User user = getCurrentUser();
         List<Budget> budgets = budgetRepository.findByUserIdAndMonthAndYear(user.getId(), month, year);
 
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        LocalDateTime startDate = LocalDate.of(year, month, 1).atStartOfDay();
+        LocalDateTime endDate = startDate.plusMonths(1).minusDays(1).withHour(23).withMinute(59).withSecond(59);
 
         return budgets.stream().map(budget -> {
-            BigDecimal spent = transactionRepository.sumAmountByUserIdAndTypeAndDateBetween(
-                    user.getId(),
-                    TransactionType.EXPENSE,
-                    startDate,
-                    endDate);
-
-            // Note: The sumAmount query needs to be refined to sums by category.
-            // Since sumAmountByUserIdAndTypeAndDateBetween is generic, we need sum by
-            // Category.
-            // Let's assume we fetch all transactions and filter, or use a better query.
-            // For now, let's fix the query issue by calculating properly.
-
-            // Efficient approach: We should add a method in TransactionRepository to sum by
-            // Category.
-            // But to avoid changing repository interface now, let's do sum here (Assuming
-            // not huge volume for single user/month).
-            // Actually, we should add sumByCategoryId in Repo. Let's do a workaround: fetch
-            // transactions for category.
-
-            // Correction: I should add a query in TransactionRepository for sum by
-            // category.
-            // But let's stick to the current plan. I'll use the
-            // findByUserIdAndCategoryId...
-
             List<com.finance.tracker.entity.Transaction> transactions = transactionRepository
                     .findByUserIdAndTransactionDateBetween(user.getId(), startDate, endDate);
 

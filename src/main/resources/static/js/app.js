@@ -10,6 +10,12 @@ const App = {
         return date.toLocaleDateString('vi-VN');
     },
 
+    formatDateTime: function (dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleString('vi-VN');
+    },
+
     showToast: function (message, type = 'success') {
         // Create toast container if not exists
         if ($('.toast-container').length === 0) {

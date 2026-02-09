@@ -21,8 +21,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -44,16 +45,17 @@ public class ReportService {
     @Transactional(readOnly = true)
     public MonthlyReportResponse getMonthlyReport(Integer month, Integer year) {
         User user = getCurrentUser();
-        LocalDate startDate;
-        LocalDate endDate;
+        LocalDateTime startDate;
+        LocalDateTime endDate;
 
         if (month != null && year != null) {
-            startDate = LocalDate.of(year, month, 1);
-            endDate = startDate.plusMonths(1).minusDays(1);
+            LocalDate start = LocalDate.of(year, month, 1);
+            startDate = start.atStartOfDay();
+            endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
         } else {
             LocalDate now = LocalDate.now();
-            startDate = now.withDayOfMonth(1);
-            endDate = now.withDayOfMonth(now.lengthOfMonth());
+            startDate = now.withDayOfMonth(1).atStartOfDay();
+            endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
         }
 
         List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
@@ -103,8 +105,18 @@ public class ReportService {
     @Transactional(readOnly = true)
     public ByteArrayInputStream exportToExcel(Integer month, Integer year) throws IOException {
         User user = getCurrentUser();
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        if (month != null && year != null) {
+            LocalDate start = LocalDate.of(year, month, 1);
+            startDate = start.atStartOfDay();
+            endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
+        } else {
+            LocalDate now = LocalDate.now();
+            startDate = now.withDayOfMonth(1).atStartOfDay();
+            endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
+        }
 
         List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
                 user.getId(), startDate, endDate);
@@ -144,8 +156,18 @@ public class ReportService {
     @Transactional(readOnly = true)
     public ByteArrayInputStream exportToCsv(Integer month, Integer year) throws IOException {
         User user = getCurrentUser();
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+
+        if (month != null && year != null) {
+            LocalDate start = LocalDate.of(year, month, 1);
+            startDate = start.atStartOfDay();
+            endDate = start.plusMonths(1).minusDays(1).atTime(LocalTime.MAX);
+        } else {
+            LocalDate now = LocalDate.now();
+            startDate = now.withDayOfMonth(1).atStartOfDay();
+            endDate = now.withDayOfMonth(now.lengthOfMonth()).atTime(LocalTime.MAX);
+        }
 
         List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
                 user.getId(), startDate, endDate);
