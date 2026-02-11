@@ -28,12 +28,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                         "AND (:categoryId IS NULL OR t.category.id = :categoryId) " +
                         "AND (:type IS NULL OR t.type = :type) " +
                         "AND (:startDate IS NULL OR t.transactionDate >= :startDate) " +
-                        "AND (:endDate IS NULL OR t.transactionDate <= :endDate)")
+                        "AND (:endDate IS NULL OR t.transactionDate <= :endDate) " +
+                        "AND (:keyword IS NULL OR :keyword = '' OR " +
+                        "LOWER(t.note) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+                        "LOWER(t.category.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
         Page<Transaction> findWithFilters(@Param("userId") Long userId,
                         @Param("categoryId") Long categoryId,
                         @Param("type") TransactionType type,
                         @Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate,
+                        @Param("keyword") String keyword,
                         Pageable pageable);
 
         @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId " +

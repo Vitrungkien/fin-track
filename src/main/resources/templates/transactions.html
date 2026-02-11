@@ -9,34 +9,56 @@
     <div th:fragment="content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Transactions</h2>
-            <button class="btn btn-primary" onclick="openAddModal()">
-                <i class="fas fa-plus me-2"></i>Add Transaction
-            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" onclick="downloadTemplate()">
+                    <i class="fas fa-download me-2"></i>Download Template
+                </button>
+                <button class="btn btn-outline-success" onclick="openImportModal()">
+                    <i class="fas fa-file-import me-2"></i>Import Excel
+                </button>
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-plus me-2"></i>Add Transaction
+                </button>
+            </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Month</label>
                         <select id="filterMonth" class="form-select">
                             <option value="">All Months</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Year</label>
                         <select id="filterYear" class="form-select">
                             <!-- Populated -->
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <select id="filterType" class="form-select">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Type</label>
+                        <select id="filterType" class="form-select" onchange="loadFilterCategories()">
                             <option value="">All Types</option>
                             <option value="INCOME">Income</option>
                             <option value="EXPENSE">Expense</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button class="btn btn-outline-secondary w-100" onclick="loadTransactions()">Apply
-                            Filters</button>
+                        <label class="form-label small text-muted">Category</label>
+                        <select id="filterCategory" class="form-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Search</label>
+                        <div class="input-group">
+                            <input type="text" id="filterKeyword" class="form-control" placeholder="Note, category...">
+                            <button class="btn btn-outline-secondary" onclick="loadTransactions(0)">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,6 +144,66 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" onclick="saveTransaction()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div class="modal fade" id="importModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Import Transactions from Excel</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="importUploadSection">
+                            <div class="mb-3">
+                                <label for="excelFile" class="form-label">Select Excel File</label>
+                                <input type="file" class="form-control" id="excelFile" accept=".xlsx,.xls">
+                                <div class="form-text">
+                                    File must be in Excel format (.xlsx or .xls).
+                                    <a href="#" onclick="downloadTemplate(); return false;">Download template</a> for
+                                    reference.
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <strong>Expected format:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Column 1: Date (YYYY-MM-DD)</li>
+                                    <li>Column 2: Type (INCOME or EXPENSE)</li>
+                                    <li>Column 3: Category Name (must exist in your categories)</li>
+                                    <li>Column 4: Amount</li>
+                                    <li>Column 5: Note (optional)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div id="importProgressSection" style="display: none;">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p>Importing transactions...</p>
+                            </div>
+                        </div>
+
+                        <div id="importResultSection" style="display: none;">
+                            <div class="alert" id="importResultAlert">
+                                <h6 class="alert-heading">Import Results</h6>
+                                <p id="importResultSummary"></p>
+                                <div id="importErrorList" style="display: none;">
+                                    <strong>Errors:</strong>
+                                    <ul id="importErrors" class="mb-0 mt-2"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="importButton"
+                            onclick="importExcel()">Import</button>
                     </div>
                 </div>
             </div>

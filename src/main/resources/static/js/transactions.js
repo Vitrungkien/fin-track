@@ -5,7 +5,20 @@ let pageSize = 10;
 $(document).ready(function () {
     pageSize = $('#pageSize').val();
     setupFilters();
+    loadFilterCategories();
     loadTransactions(0);
+
+    // Auto-reload on filter change
+    $('#filterMonth, #filterYear, #filterCategory').on('change', function () {
+        loadTransactions(0);
+    });
+
+    // Handle Enter key on search input
+    $('#filterKeyword').on('keypress', function (e) {
+        if (e.which === 13) {
+            loadTransactions(0);
+        }
+    });
 });
 
 function setupFilters() {
@@ -36,11 +49,15 @@ function loadTransactions(page = 0) {
     const month = $('#filterMonth').val();
     const year = $('#filterYear').val();
     const type = $('#filterType').val();
+    const categoryId = $('#filterCategory').val();
+    const keyword = $('#filterKeyword').val();
 
     let query = `?page=${page}&size=${pageSize}`;
     if (month) query += `&month=${month}`;
     if (year) query += `&year=${year}`;
     if (type) query += `&type=${type}`;
+    if (categoryId) query += `&categoryId=${categoryId}`;
+    if (keyword) query += `&keyword=${encodeURIComponent(keyword)}`;
 
     $.get(`/api/transactions${query}`, function (response) {
         const tbody = $('#transactionTableBody');
@@ -169,6 +186,30 @@ function loadCategoriesForSelect(selectedCategoryId) {
     });
 }
 
+function loadFilterCategories() {
+    const type = $('#filterType').val();
+    const categorySelect = $('#filterCategory');
+
+    let url = '/api/categories';
+    if (type) {
+        url += `?type=${type}`;
+    }
+
+    $.get(url, function (data) {
+        const currentVal = categorySelect.val();
+        categorySelect.empty();
+        categorySelect.append('<option value="">All Categories</option>');
+        data.forEach(cat => {
+            categorySelect.append(`<option value="${cat.id}">${cat.name}</option>`);
+        });
+        // Try to restore previous selection if it still exists
+        categorySelect.val(currentVal);
+
+        // When type changes, we should also reload transactions because the category selection might have changed/reset
+        loadTransactions(0);
+    });
+}
+
 function openAddModal() {
     $('#transactionId').val('');
     $('#transactionForm')[0].reset();
@@ -254,5 +295,123 @@ function deleteTransaction(id) {
                 loadTransactions(currentPage);
             }
         });
+    }
+}
+
+function downloadTemplate() {
+    window.location.href = '/api/transactions/template';
+}
+
+function openImportModal() {
+    // Reset modal state
+    $('#excelFile').val('');
+    $('#importUploadSection').show();
+    $('#importProgressSection').hide();
+    $('#importResultSection').hide();
+    $('#importButton').prop('disabled', false);
+
+    $('#importModal').modal('show');
+}
+
+function importExcel() {
+    const fileInput = $('#excelFile')[0];
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please select an Excel file to import');
+        return;
+    }
+
+    const file = fileInput.files[0];
+
+    // Validate file extension
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+        alert('Please select a valid Excel file (.xlsx or .xls)');
+        return;
+    }
+
+    // Show progress
+    $('#importUploadSection').hide();
+    $('#importProgressSection').show();
+    $('#importResultSection').hide();
+    $('#importButton').prop('disabled', true);
+
+    // Create FormData
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Upload file
+    $.ajax({
+        url: '/api/transactions/import',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            displayImportResult(result);
+
+            // Reload transactions if any were imported successfully
+            if (result.successCount > 0) {
+                loadTransactions(currentPage);
+            }
+        },
+        error: function (xhr) {
+            $('#importProgressSection').hide();
+            $('#importUploadSection').show();
+            $('#importButton').prop('disabled', false);
+
+            let errorMessage = 'Error importing file';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            } else if (xhr.statusText) {
+                errorMessage = xhr.statusText;
+            }
+
+            alert('Import failed: ' + errorMessage);
+        }
+    });
+}
+
+function displayImportResult(result) {
+    $('#importProgressSection').hide();
+    $('#importResultSection').show();
+
+    const alertDiv = $('#importResultAlert');
+    const summaryDiv = $('#importResultSummary');
+    const errorListDiv = $('#importErrorList');
+    const errorsUl = $('#importErrors');
+
+    // Set alert class based on result
+    alertDiv.removeClass('alert-success alert-warning alert-danger');
+
+    if (result.errorCount === 0) {
+        alertDiv.addClass('alert-success');
+    } else if (result.successCount > 0) {
+        alertDiv.addClass('alert-warning');
+    } else {
+        alertDiv.addClass('alert-danger');
+    }
+
+    // Build summary message
+    let summaryText = `Total rows processed: ${result.totalRows}<br>`;
+    summaryText += `Successfully imported: ${result.successCount}<br>`;
+    summaryText += `Failed: ${result.errorCount}`;
+    summaryDiv.html(summaryText);
+
+    // Show errors if any
+    if (result.errors && result.errors.length > 0) {
+        errorListDiv.show();
+        errorsUl.empty();
+
+        result.errors.forEach(error => {
+            errorsUl.append(`<li>${error}</li>`);
+        });
+    } else {
+        errorListDiv.hide();
+    }
+
+    // Show success toast if applicable
+    if (result.successCount > 0 && typeof App !== 'undefined' && App.showToast) {
+        App.showToast(`Successfully imported ${result.successCount} transaction(s)`, 'success');
     }
 }
