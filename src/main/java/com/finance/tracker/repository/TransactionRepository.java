@@ -47,6 +47,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                         @Param("startDate") LocalDateTime startDate,
                         @Param("endDate") LocalDateTime endDate);
 
+        @Query("SELECT SUM(CASE WHEN t.type = com.finance.tracker.entity.TransactionType.INCOME THEN t.amount ELSE -t.amount END) "
+                        +
+                        "FROM Transaction t WHERE t.user.id = :userId " +
+                        "AND (t.transactionDate < :date OR (t.transactionDate = :date AND (:id IS NULL OR t.id <= :id)))")
+        BigDecimal getCumulativeBalanceAt(@Param("userId") Long userId, @Param("date") LocalDateTime date,
+                        @Param("id") Long id);
+
         List<Transaction> findByUserIdAndTransactionDateBetween(Long userId, LocalDateTime startDate,
                         LocalDateTime endDate);
 }

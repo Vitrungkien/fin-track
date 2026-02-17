@@ -31,6 +31,7 @@ $(document).ready(function () {
             $('#totalIncome').text(App.formatCurrency(data.totalIncome));
             $('#totalExpense').text(App.formatCurrency(data.totalExpense));
             $('#balance').text(App.formatCurrency(data.balance));
+            $('#cumulativeBalance').text(App.formatCurrency(data.cumulativeBalance));
         });
 
         // Load Daily Chart

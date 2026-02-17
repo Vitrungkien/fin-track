@@ -65,11 +65,17 @@ public class DashboardService {
                                 .map(Transaction::getAmount)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+                BigDecimal cumulativeBalance = transactionRepository.getCumulativeBalanceAt(user.getId(), endDate,
+                                null);
+                if (cumulativeBalance == null)
+                        cumulativeBalance = BigDecimal.ZERO;
+
                 return DashboardSummaryResponse.builder()
                                 .month(YearMonth.from(startDate).toString())
                                 .totalIncome(totalIncome)
                                 .totalExpense(totalExpense)
                                 .balance(totalIncome.subtract(totalExpense))
+                                .cumulativeBalance(cumulativeBalance)
                                 .transactionCount((long) transactions.size())
                                 .build();
         }

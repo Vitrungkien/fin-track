@@ -64,7 +64,7 @@ function loadTransactions(page = 0) {
         tbody.empty();
 
         if (response.content.length === 0) {
-            tbody.html('<tr><td colspan="5" class="text-center text-muted">No transactions found</td></tr>');
+            tbody.html('<tr><td colspan="6" class="text-center text-muted">No transactions found</td></tr>');
             updatePagination(response);
             return;
         }
@@ -83,6 +83,9 @@ function loadTransactions(page = 0) {
                     <td>${t.note || '-'}</td>
                     <td class="text-end ${amountClass}">
                         ${sign}${App.formatCurrency(t.amount)}
+                    </td>
+                    <td class="text-end font-weight-bold">
+                        ${App.formatCurrency(t.balanceAfter)}
                     </td>
                     <td class="text-end">
                         <button class="btn btn-sm btn-link" onclick="editTransaction(${t.id})"><i class="fas fa-edit"></i></button>

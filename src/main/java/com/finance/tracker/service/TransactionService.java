@@ -60,7 +60,13 @@ public class TransactionService {
         Page<Transaction> transactions = transactionRepository.findWithFilters(
                 user.getId(), categoryId, type, startDate, endDate, keyword, pageable);
 
-        return transactions.map(this::mapToResponse);
+        return transactions.map(t -> {
+            BigDecimal balanceAfter = transactionRepository.getCumulativeBalanceAt(user.getId(), t.getTransactionDate(),
+                    t.getId());
+            TransactionResponse resp = this.mapToResponse(t);
+            resp.setBalanceAfter(balanceAfter != null ? balanceAfter : BigDecimal.ZERO);
+            return resp;
+        });
     }
 
     @Transactional

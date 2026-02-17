@@ -19,4 +19,5 @@ public class TransactionResponse {
     private String categoryIcon;
     private LocalDateTime transactionDate;
     private String note;
+    private BigDecimal balanceAfter;
 }
